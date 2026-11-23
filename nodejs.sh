@@ -8,7 +8,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 if command -v node >/dev/null 2>&1 && [[ $(node -v) =~ ^v22\. ]]; then
    echo "Node.js LTS (v22.x) 已安装，版本: $(node -v)"
-   exit 1 # 已安装，返回成功码
+   exit 0 # 已安装
 fi
 
 echo "正在安装 Node.js 最新 LTS 版本 (Node.js 22.x)..."
