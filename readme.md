@@ -6,3 +6,7 @@ curl -fsSL https://sh.855655.xyz/nodejs.sh | bash
 ```
 curl -fsSL https://sh.855655.xyz/cns.sh | bash
 ```
+### 安装openlist
+```
+curl -fsSL https://sh.855655.xyz/openlist.sh | bash
+```
