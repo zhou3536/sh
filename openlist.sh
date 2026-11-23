@@ -121,5 +121,5 @@ systemctl status openlist --no-pager
 
 cd /app/openlist
 ./openlist admin set as2026
-cd /
+cd 
 echo "Script finished."
