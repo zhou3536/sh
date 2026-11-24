@@ -19,7 +19,7 @@ SERVICE_NAME="caddy"
 # 检查 /app/caddy/caddy 是否存在
 if [ -f "$INSTALL_DIR/caddy" ]; then
     echo ">>> 检测到 $INSTALL_DIR/caddy 已存在。"
-    read -r -p "是否覆盖安装？输入 y 覆盖安装，直接回车退出 [y/N]: " choice
+    read -r -p "是否覆盖安装？输入 y 覆盖安装，直接回车退出 [y/N]: " choice < /dev/tty
     case "$choice" in
         [yY]|[yY][eE][sS])
             echo ">>> 选择覆盖安装，继续执行..."
