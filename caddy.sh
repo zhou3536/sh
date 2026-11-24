@@ -55,32 +55,27 @@ ARCHIVE_FILE=$(basename "$DOWNLOAD_URL")
 echo ">>> 脚本开始执行 (检测到架构: $ARCH)..."
 
 # 1. 创建安装目录
-echo ">>> 正在创建目录: $INSTALL_DIR"
 if ! mkdir -p "$INSTALL_DIR"; then
     echo "!!! 错误：无法创建目录 $INSTALL_DIR。请检查权限。"
     exit 1
 fi
-echo ">>> 目录 $INSTALL_DIR 创建成功。"
 
 # 切换到安装目录
 cd "$INSTALL_DIR" || { echo "!!! 错误：无法切换到目录 $INSTALL_DIR。"; exit 1; }
 
 # 2. 下载并解包 Caddy
-echo ">>> 正在下载 Caddy: $DOWNLOAD_URL"
+echo ">>> 正在下载 Caddy"
 if ! wget -O "$ARCHIVE_FILE" "$DOWNLOAD_URL"; then
     echo "!!! 错误：下载文件失败。请检查 URL 或网络连接。"
     exit 1
 fi
-echo ">>> 文件下载完成。"
 
-echo ">>> 正在解包 Caddy 文件..."
 if ! tar -zxf "$ARCHIVE_FILE" -C "$INSTALL_DIR"; then
     echo "!!! 错误：解压文件 $ARCHIVE_FILE 失败。"
     exit 1
 fi
 rm -f "$ARCHIVE_FILE"
 chmod +x "$INSTALL_DIR/caddy"
-echo ">>> Caddy 文件解包成功。"
 
 # 检查 caddy 可执行文件是否存在并授权
 if [ ! -x "$INSTALL_DIR/caddy" ]; then
@@ -88,26 +83,23 @@ if [ ! -x "$INSTALL_DIR/caddy" ]; then
     echo "!!! 请确保下载的文件包含 caddy 可执行文件。"
     exit 1
 fi
-echo ">>> Caddy 可执行文件找到。"
 
 # 3. 创建 Caddyfile 和 1.conf
-echo ">>> 正在生成配置文件: $INSTALL_DIR/Caddyfile"
 cat << 'EOF' > "$INSTALL_DIR/Caddyfile"
 :80 {
     redir https://{host}{uri}
 }
+
 import ./*.conf
 EOF
 
-echo ">>> 正在生成配置文件: $INSTALL_DIR/1.conf"
-cat << 'EOF' > "$INSTALL_DIR/1.conf"
-#www.abc.com {
-#    reverse_proxy 127.0.0.1:3000
-#}
+cat << 'EOF' > "$INSTALL_DIR/example.conf"
+#  example.com {
+#      reverse_proxy 127.0.0.1:3000
+#  }
 EOF
 
 # 4. 创建 systemd 服务文件
-echo ">>> 正在创建 systemd 服务文件: $SERVICE_FILE"
 cat << EOF > "$SERVICE_FILE"
 [Unit]
 Description=Caddy Server
@@ -138,26 +130,20 @@ if [ $? -ne 0 ]; then
     echo "!!! 错误：创建服务文件 $SERVICE_FILE 失败。"
     exit 1
 fi
-echo ">>> 服务文件 $SERVICE_FILE 创建成功。"
 
 # 重新加载 systemd 配置
-echo ">>> 重新加载 systemd 配置..."
 if ! systemctl daemon-reload; then
     echo "!!! 错误：systemd daemon-reload 失败。"
     exit 1
 fi
-echo ">>> systemd 配置重新加载完成。"
 
 # 启用 Caddy 服务 (开机自启)
-echo ">>> 正在启用 Caddy 服务 (开机自启)..."
 if ! systemctl enable "$SERVICE_NAME.service"; then
     echo "!!! 错误：启用 Caddy 服务失败。"
     exit 1
 fi
-echo ">>> Caddy 服务已启用。"
 
 # 启动/重启 Caddy 服务
-echo ">>> 正在启动 Caddy 服务..."
 if ! systemctl restart "$SERVICE_NAME.service"; then
     echo "!!! 错误：启动 Caddy 服务失败。"
     echo ">>> 尝试显示服务状态以帮助诊断问题："
@@ -166,11 +152,13 @@ if ! systemctl restart "$SERVICE_NAME.service"; then
 fi
 echo ">>> Caddy 服务启动成功。"
 
-# 显示服务状态
-echo ">>> 正在显示 Caddy 服务状态："
-systemctl status "$SERVICE_NAME.service" --no-pager
-
-echo ">>> 脚本执行完毕！"
-echo ">>> Caddy 已安装并运行。"
 echo ">>> 配置文件位于 $INSTALL_DIR/"
+
+echo "
+#启动服务： systemctl start caddy       
+#重启服务： systemctl restart caddy     
+#重载配置： systemctl reload caddy      
+#停止服务： systemctl stop caddy        
+#运行状态： systemctl status caddy        
+"
 exit 0
