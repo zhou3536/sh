@@ -119,7 +119,4 @@ echo "OpenList service enabled and started."
 echo "Checking OpenList service status..."
 systemctl status openlist --no-pager
 
-cd /app/openlist
-./openlist admin set as2026
-cd 
 echo "Script finished."
